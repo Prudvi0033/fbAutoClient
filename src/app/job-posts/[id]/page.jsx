@@ -18,44 +18,65 @@ export default function SingleJob() {
 
   const fetchJob = async () => {
     try {
-      setLoading(true);
+      console.log("Fetching job with ID:", jobId);
       const res = await axiosInstance.get(`/jobs/${jobId}`);
+      console.log("Job data received:", res.data);
       setJob(res.data.job);
       setError(null);
     } catch (err) {
       console.error("Failed to fetch job:", err);
-      setError("Failed to load job details");
-    } finally {
-      setLoading(false);
+      console.error("Error response:", err.response?.data);
+      setError(err.response?.data?.error || "Failed to load job details");
     }
   };
 
   const fetchAnalytics = async () => {
     try {
+      console.log("Fetching analytics for job ID:", jobId);
       const res = await axiosInstance.get(`/jobs/${jobId}/analytics`);
+      console.log("Analytics data received:", res.data);
       setAnalytics(res.data.analytics);
     } catch (err) {
       console.error("Failed to fetch analytics:", err);
+      // Don't set error state for analytics failure, it's optional
     }
   };
 
   useEffect(() => {
+    console.log("useParams result:", params);
+    console.log("jobId extracted:", jobId);
+    
     if (jobId) {
-      fetchJob();
-      fetchAnalytics();
+      const loadData = async () => {
+        setLoading(true);
+        try {
+          await fetchJob();
+          await fetchAnalytics();
+        } catch (err) {
+          console.error("Error loading job data:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      loadData();
+    } else {
+      setLoading(false);
+      setError(`No job ID provided. Params: ${JSON.stringify(params)}`);
     }
-  }, [jobId]);
+  }, [jobId, params]);
 
   const handlePostToFacebook = async () => {
     try {
       setPosting(true);
-      await axiosInstance.post(`/jobs/${jobId}/post`);
+      await axiosInstance.post(`/jobs/${jobId}/post-to-facebook`);
       // Refresh job data to see updated posting status
       await fetchJob();
       await fetchAnalytics();
+      alert("Job posted successfully!");
     } catch (err) {
       console.error("Failed to post to Facebook:", err);
-      alert("Failed to post to Facebook groups. Please try again.");
+      alert(err.response?.data?.error || "Failed to post to Facebook groups. Please try again.");
     } finally {
       setPosting(false);
     }
@@ -81,15 +102,28 @@ export default function SingleJob() {
     }
   };
 
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      await fetchJob();
+      await fetchAnalytics();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-screen bg-white">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-black">Loading job details...</div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-black mx-auto mb-4"></div>
+            <div className="text-black">Loading job details...</div>
+          </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !job) {
@@ -98,13 +132,21 @@ export default function SingleJob() {
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-red-600 mb-4">{error || "Job not found"}</div>
-            <button
-              onClick={() => router.push("/job-posts")}
-              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              Back to Jobs
-            </button>
+            <div className="text-red-600 mb-4 text-lg">{error || "Job not found"}</div>
+            <div className="space-x-3">
+              <button
+                onClick={() => router.push("/job-posts")}
+                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                Back to Jobs
+              </button>
+              <button
+                onClick={handleRefresh}
+                className="px-4 py-2 border border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -147,10 +189,7 @@ export default function SingleJob() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => {
-                  fetchJob();
-                  fetchAnalytics();
-                }}
+                onClick={handleRefresh}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <RefreshCw size={18} />
@@ -182,7 +221,7 @@ export default function SingleJob() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Job Details Card */}
-              <div className="bg-white rounded-lg border border-gray-200 shadow-[0_1px_1px_rgba(0,0,0,0.05),0_4px_6px_rgba(34,42,53,0.04),0_24px_68px_rgba(47,48,55,0.05),0_2px_3px_rgba(0,0,0,0.04)] p-6">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-black">Job Details</h2>
                   <span className={`px-3 py-1 text-sm font-medium rounded-full ${
@@ -194,7 +233,7 @@ export default function SingleJob() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">Job Type</label>
                     <div className="flex items-center gap-2 text-black">
@@ -212,7 +251,7 @@ export default function SingleJob() {
                     </div>
                   )}
                   {job.salaryRange && (
-                    <div className="col-span-2">
+                    <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-600 mb-1">Salary Range</label>
                       <div className="text-black font-medium">💰 {job.salaryRange}</div>
                     </div>
@@ -258,8 +297,8 @@ export default function SingleJob() {
 
               {/* Facebook Groups */}
               {job.facebookGroups && job.facebookGroups.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200 shadow-[0_1px_1px_rgba(0,0,0,0.05),0_4px_6px_rgba(34,42,53,0.04),0_24px_68px_rgba(47,48,55,0.05),0_2px_3px_rgba(0,0,0,0.04)] p-6">
-                  <h2 className="text-xl font-semibold text-black mb-4">Facebook Groups</h2>
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                  <h2 className="text-xl font-semibold text-black mb-4">Facebook Groups ({job.facebookGroups.length})</h2>
                   <div className="space-y-3">
                     {job.facebookGroups.map((group, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -268,7 +307,7 @@ export default function SingleJob() {
                           href={group}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm whitespace-nowrap"
                         >
                           <ExternalLink size={14} />
                           Open
@@ -284,7 +323,7 @@ export default function SingleJob() {
             <div className="space-y-6">
               {/* Posting Status */}
               {job.postingStatus && (
-                <div className="bg-white rounded-lg border border-gray-200 shadow-[0_1px_1px_rgba(0,0,0,0.05),0_4px_6px_rgba(34,42,53,0.04),0_24px_68px_rgba(47,48,55,0.05),0_2px_3px_rgba(0,0,0,0.04)] p-6">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <BarChart3 size={20} />
                     <h3 className="text-lg font-semibold text-black">Posting Status</h3>
@@ -338,24 +377,24 @@ export default function SingleJob() {
 
               {/* Analytics */}
               {analytics && (
-                <div className="bg-white rounded-lg border border-gray-200 shadow-[0_1px_1px_rgba(0,0,0,0.05),0_4px_6px_rgba(34,42,53,0.04),0_24px_68px_rgba(47,48,55,0.05),0_2px_3px_rgba(0,0,0,0.04)] p-6">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                   <h3 className="text-lg font-semibold text-black mb-4">Analytics</h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600">{analytics.totalComments}</div>
+                        <div className="text-2xl font-bold text-blue-600">{analytics.totalComments || 0}</div>
                         <div className="text-sm text-gray-600">Comments</div>
                       </div>
                       <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">{analytics.interestedCandidates}</div>
+                        <div className="text-2xl font-bold text-green-600">{analytics.interestedCandidates || 0}</div>
                         <div className="text-sm text-gray-600">Interested</div>
                       </div>
                       <div className="text-center p-3 bg-purple-50 rounded-lg">
-                        <div className="text-2xl font-bold text-purple-600">{analytics.totalViews}</div>
+                        <div className="text-2xl font-bold text-purple-600">{analytics.totalViews || 0}</div>
                         <div className="text-sm text-gray-600">Views</div>
                       </div>
                       <div className="text-center p-3 bg-orange-50 rounded-lg">
-                        <div className="text-2xl font-bold text-orange-600">{analytics.totalReactions}</div>
+                        <div className="text-2xl font-bold text-orange-600">{analytics.totalReactions || 0}</div>
                         <div className="text-sm text-gray-600">Reactions</div>
                       </div>
                     </div>
@@ -371,7 +410,7 @@ export default function SingleJob() {
 
               {/* Post Details */}
               {job.posts && job.posts.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200 shadow-[0_1px_1px_rgba(0,0,0,0.05),0_4px_6px_rgba(34,42,53,0.04),0_24px_68px_rgba(47,48,55,0.05),0_2px_3px_rgba(0,0,0,0.04)] p-6">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                   <h3 className="text-lg font-semibold text-black mb-4">Recent Posts</h3>
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {job.posts.slice(0, 5).map((post) => (
@@ -408,5 +447,5 @@ export default function SingleJob() {
         </div>
       </div>
     </div>
-  )
+  );
 }

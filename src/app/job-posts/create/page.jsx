@@ -7,7 +7,7 @@ import Sidebar from "../../components/Sidebar";
 
 import { Montserrat } from "next/font/google";
 
-const monte = Montserrat({ subsets: ['latin'] });
+const monte = Montserrat({ subsets: ["latin"] });
 
 export default function CreateJob() {
   const router = useRouter();
@@ -24,15 +24,15 @@ export default function CreateJob() {
     responsibilities: [""],
     perks: "",
     facebookGroups: [""],
-    autoPost: false
+    autoPost: false,
   });
 
   const jobTypes = [
     "FULL_TIME",
-  "PART_TIME",
-  "CONTRACT",
-  "FREELANCE",
-  "INTERNSHIP",
+    "PART_TIME",
+    "CONTRACT",
+    "FREELANCE",
+    "INTERNSHIP",
   ];
 
   const experienceLevels = [
@@ -43,36 +43,36 @@ export default function CreateJob() {
     "7-10 years",
     "10+ years",
     "Senior Level",
-    "Executive Level"
+    "Executive Level",
   ];
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleArrayInputChange = (index, value, field) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item)
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
     }));
   };
 
   const addArrayItem = (field) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: [...prev[field], ""]
+      [field]: [...prev[field], ""],
     }));
   };
 
   const removeArrayItem = (index, field) => {
     if (formData[field].length > 1) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: prev[field].filter((_, i) => i !== index)
+        [field]: prev[field].filter((_, i) => i !== index),
       }));
     }
   };
@@ -85,13 +85,15 @@ export default function CreateJob() {
       // Filter out empty strings from arrays
       const cleanedData = {
         ...formData,
-        requirements: formData.requirements.filter(req => req.trim()),
-        responsibilities: formData.responsibilities.filter(resp => resp.trim()),
-        facebookGroups: formData.facebookGroups.filter(group => group.trim())
+        requirements: formData.requirements.filter((req) => req.trim()),
+        responsibilities: formData.responsibilities.filter((resp) =>
+          resp.trim()
+        ),
+        facebookGroups: formData.facebookGroups.filter((group) => group.trim()),
       };
 
       const response = await axiosInstance.post("/jobs", cleanedData);
-      
+
       if (response.data) {
         router.push("/job-posts");
       }
@@ -106,7 +108,7 @@ export default function CreateJob() {
   return (
     <div className={`flex h-screen bg-white ${monte.className}`}>
       <Sidebar />
-      
+
       <div className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -119,13 +121,14 @@ export default function CreateJob() {
             </button>
             <div>
               <h1 className="text-3xl font-bold text-black">Create New Job</h1>
-              <p className="text-gray-600">Fill in the details to post a new job</p>
+              <p className="text-gray-600">
+                Fill in the details to post a new job
+              </p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="bg-white rounded-lg border border-gray-200 shadow-[0_1px_1px_rgba(0,0,0,0.05),0_4px_6px_rgba(34,42,53,0.04),0_24px_68px_rgba(47,48,55,0.05),0_2px_3px_rgba(0,0,0,0.04)] p-8 space-y-6">
-              
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -185,8 +188,10 @@ export default function CreateJob() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent"
                   >
                     <option value="">Select job type</option>
-                    {jobTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
+                    {jobTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -202,8 +207,10 @@ export default function CreateJob() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent"
                   >
                     <option value="">Select experience level</option>
-                    {experienceLevels.map(level => (
-                      <option key={level} value={level}>{level}</option>
+                    {experienceLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -250,14 +257,20 @@ export default function CreateJob() {
                       <input
                         type="text"
                         value={req}
-                        onChange={(e) => handleArrayInputChange(index, e.target.value, 'requirements')}
+                        onChange={(e) =>
+                          handleArrayInputChange(
+                            index,
+                            e.target.value,
+                            "requirements"
+                          )
+                        }
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent"
                         placeholder="e.g. Bachelor's degree in Computer Science"
                       />
                       {formData.requirements.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeArrayItem(index, 'requirements')}
+                          onClick={() => removeArrayItem(index, "requirements")}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                         >
                           <X size={18} />
@@ -267,7 +280,7 @@ export default function CreateJob() {
                   ))}
                   <button
                     type="button"
-                    onClick={() => addArrayItem('requirements')}
+                    onClick={() => addArrayItem("requirements")}
                     className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-black transition-colors"
                   >
                     <Plus size={16} />
@@ -287,14 +300,22 @@ export default function CreateJob() {
                       <input
                         type="text"
                         value={resp}
-                        onChange={(e) => handleArrayInputChange(index, e.target.value, 'responsibilities')}
+                        onChange={(e) =>
+                          handleArrayInputChange(
+                            index,
+                            e.target.value,
+                            "responsibilities"
+                          )
+                        }
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent"
                         placeholder="e.g. Develop and maintain web applications"
                       />
                       {formData.responsibilities.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeArrayItem(index, 'responsibilities')}
+                          onClick={() =>
+                            removeArrayItem(index, "responsibilities")
+                          }
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                         >
                           <X size={18} />
@@ -304,7 +325,7 @@ export default function CreateJob() {
                   ))}
                   <button
                     type="button"
-                    onClick={() => addArrayItem('responsibilities')}
+                    onClick={() => addArrayItem("responsibilities")}
                     className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-black transition-colors"
                   >
                     <Plus size={16} />
@@ -331,38 +352,27 @@ export default function CreateJob() {
               {/* Facebook Groups */}
               <div>
                 <label className="block text-sm font-medium text-black mb-2">
-                  Facebook Groups URLs
+                  Facebook Group
                 </label>
-                <div className="space-y-2">
-                  {formData.facebookGroups.map((group, index) => (
-                    <div key={index} className="flex gap-2">
-                      <input
-                        type="url"
-                        value={group}
-                        onChange={(e) => handleArrayInputChange(index, e.target.value, 'facebookGroups')}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent"
-                        placeholder="https://www.facebook.com/groups/example"
-                      />
-                      {formData.facebookGroups.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeArrayItem(index, 'facebookGroups')}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                        >
-                          <X size={18} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addArrayItem('facebookGroups')}
-                    className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-black transition-colors"
-                  >
-                    <Plus size={16} />
-                    Add Facebook Group
-                  </button>
-                </div>
+                <select
+                  name="facebookGroups"
+                  value={formData.facebookGroups[0] || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      facebookGroups: e.target.value ? [e.target.value] : [],
+                    }))
+                  }
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent"
+                >
+                  <option value="">Choose a group to post</option>
+                  <option value="https://www.facebook.com/groups/1050031650534401">
+                    Sample Group
+                  </option>
+                  {/* Later you can add more groups like: 
+    <option value="https://www.facebook.com/groups/xxxxxx">Another Group</option>
+    */}
+                </select>
               </div>
 
               {/* Auto Post */}
@@ -375,7 +385,10 @@ export default function CreateJob() {
                   onChange={handleInputChange}
                   className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-[0.5px]"
                 />
-                <label htmlFor="autoPost" className="text-sm font-medium text-black">
+                <label
+                  htmlFor="autoPost"
+                  className="text-sm font-medium text-black"
+                >
                   Auto-post to Facebook groups after creating the job
                 </label>
               </div>

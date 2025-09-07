@@ -28,7 +28,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/app/components/Sidebar.jsx", "src/app/job-posts/page.jsx", "src/app/candidates/page.jsx"  ],
+, "src/app/components/Sidebar.jsx", "src/app/job-posts/page.jsx", "src/app/candidates/page.jsx", "src/app/job-posts/[id]/page.jsx"  ],
   "exclude": [
     "node_modules"
   ]
