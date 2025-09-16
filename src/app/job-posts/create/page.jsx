@@ -369,9 +369,9 @@ export default function CreateJob() {
                   <option value="https://www.facebook.com/groups/1050031650534401">
                     Sample Group
                   </option>
-                  {/* Later you can add more groups like: 
-    <option value="https://www.facebook.com/groups/xxxxxx">Another Group</option>
-    */}
+                  <option value="https://www.facebook.com/groups/carpenterjobuk">
+                    Carpenter Job UK
+                  </option>
                 </select>
               </div>
 
