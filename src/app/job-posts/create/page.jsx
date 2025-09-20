@@ -47,6 +47,7 @@ export default function CreateJob() {
   ];
 
   const facebookGroups = [
+    {name: "Sample Group", url: "https://www.facebook.com/groups/1050031650534401"},
     { name: "Carpenter Job UK", url: "https://m.facebook.com/groups/carpenterjobuk/" },
     { name: "Carpenters Jobs UK", url: "https://m.facebook.com/Carpentersjobsinuk/" },
     { name: "Const Jobs", url: "https://m.facebook.com/groups/ConstJobs/?locale=en_GB" },
@@ -405,24 +406,32 @@ export default function CreateJob() {
                 <label className="block text-sm font-medium text-black mb-2">
                   Facebook Group
                 </label>
-                <select
-                  name="facebookGroups"
-                  value={formData.facebookGroups[0] || ""}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      facebookGroups: e.target.value ? [e.target.value] : [],
-                    }))
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent"
-                >
-                  <option value="">Choose a group to post</option>
-                  {facebookGroups.map((group, index) => (
-                    <option key={index} value={group.url}>
-                      {group.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    name="facebookGroups"
+                    value={formData.facebookGroups[0] || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        facebookGroups: e.target.value ? [e.target.value] : [],
+                      }))
+                    }
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[0.5px] focus:ring-neutral-400 focus:border-transparent appearance-none"
+                    style={{ 
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.5rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.5em 1.5em',
+                    }}
+                  >
+                    <option value="">Choose a group to post</option>
+                    {facebookGroups.map((group, index) => (
+                      <option key={index} value={group.url}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Auto Post */}
